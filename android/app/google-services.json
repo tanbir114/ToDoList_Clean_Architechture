@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1041684792099",
+    "project_id": "todo-clean-archi",
+    "storage_bucket": "todo-clean-archi.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1041684792099:android:f476f0a5ebe115fd910296",
+        "android_client_info": {
+          "package_name": "com.example.todocleanarchi"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBUskoEYNxNG9Yne38fz1zmuixP62Oce3I"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
