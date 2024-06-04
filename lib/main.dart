@@ -20,7 +20,7 @@ class MyApp extends StatelessWidget {
       title: 'To Do List',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.red),
-        // useMaterial3: true,
+        useMaterial3: true,
       ),
       initialRoute: '/',
       getPages: [

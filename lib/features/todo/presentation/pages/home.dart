@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:to_do_list/features/todo/domain/entities/todo.dart';
+import 'package:to_do_list_clean_architecture/features/todo/domain/entities/todo.dart';
 
 import '../controller/todo_controller.dart';
 

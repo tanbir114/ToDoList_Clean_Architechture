@@ -9,7 +9,7 @@ abstract class TodoRemoteDatabase {
   //Delete
   Future<Todo> deleteTodo(Todo todo);
   //Get All toda
-  Future<List<Todo>> listTodos();
+  Stream<List<Todo>> listTodos();
 }
 
 class TodoRemoteDatabseImpl implements TodoRemoteDatabase {
@@ -38,9 +38,12 @@ class TodoRemoteDatabseImpl implements TodoRemoteDatabase {
   }
 
   @override
-  Future<List<Todo>> listTodos() async {
-    final todosData =
-        await FirebaseFirestore.instance.collection('todos').get();
-    return todosData.docs.map((item) => Todo.fromMap(item.data())).toList();
+  Stream<List<Todo>> listTodos() async* {
+    yield* FirebaseFirestore.instance
+        .collection('todos')
+        .snapshots()
+        .map((snapshot) {
+      return snapshot.docs.map((doc) => Todo.fromMap(doc.data())).toList();
+    });
   }
 }
