@@ -1,12 +1,15 @@
-import 'package:to_do_list_clean_architecture/features/authentication/domain/entities/user.dart';
+import 'package:dartz/dartz.dart';
 import 'package:to_do_list_clean_architecture/features/authentication/domain/repositories/auth_repo.dart';
+import '../../../../shared/errors/failure.dart';
+import '../../../../shared/utils/usecase.dart';
+import '../entities/user.dart';
 
-class SignUPUseCase {
+class SignUpUseCase implements UseCase<void, Params<ToDoUser>> {
   final AuthRepository repository;
+  SignUpUseCase(this.repository);
 
-  SignUPUseCase({required this.repository});
-
-  Future<void> call(ToDoUser user) async {
-    return repository.signUp(user);
+  @override
+  Future<Either<Failure, void>> call(Params todouser) async {
+    return await repository.signUp(todouser.data);
   }
 }

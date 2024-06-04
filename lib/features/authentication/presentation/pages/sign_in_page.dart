@@ -1,68 +1,27 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:to_do_list_clean_architecture/features/authentication/domain/entities/user.dart';
-
-import '../../../../app_const.dart';
+import 'package:get/get.dart';
 import '../../../todo/presentation/pages/home.dart';
-import '../cubit/auth/auth_cubit.dart';
-import '../cubit/user/user_cubit.dart';
+import '../controller/auth_controller.dart';
 import '../widgets/common.dart';
 
-class SignInPage extends StatefulWidget {
-  const SignInPage({super.key});
-
-  @override
-  _SignInPageState createState() => _SignInPageState();
-}
-
-class _SignInPageState extends State<SignInPage> {
-  final TextEditingController _emailController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
-
-  final GlobalKey<ScaffoldState> _scaffoldGlobalKey =
-      GlobalKey<ScaffoldState>();
-
-  @override
-  void dispose() {
-    _emailController.dispose();
-    _passwordController.dispose();
-    super.dispose();
-  }
+class SignInPage extends GetView<AuthController> {
+  final GlobalKey<ScaffoldState> _scaffoldGlobalKey = GlobalKey<ScaffoldState>();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        key: _scaffoldGlobalKey,
-        body: BlocConsumer<UserCubit, UserState>(
-          builder: (context, userState) {
-            if (userState is UserSuccess) {
-              return BlocBuilder<AuthCubit, AuthState>(
-                  builder: (context, authState) {
-                if (authState is Authenticated) {
-                  return HomePage(
-                    uid: authState.uid,
-                  );
-                } else {
-                  return _bodyWidget();
-                }
-              });
-            }
-
-            return _bodyWidget();
-          },
-          listener: (context, userState) {
-            if (userState is UserSuccess) {
-              BlocProvider.of<AuthCubit>(context).loggedIn();
-            }
-            if (userState is UserFailure) {
-              snackBarError(
-                  msg: "invalid email", scaffoldState: _scaffoldGlobalKey);
-            }
-          },
-        ));
+      key: _scaffoldGlobalKey,
+      body: Obx(() {
+        if (controller.isSignedIn.value) {
+          return HomePage();
+        } else {
+          return _bodyWidget(context);
+        }
+      }),
+    );
   }
 
-  _bodyWidget() {
+  Widget _bodyWidget(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(25),
       child: Column(
@@ -86,7 +45,7 @@ class _SignInPageState extends State<SignInPage> {
               borderRadius: const BorderRadius.all(Radius.circular(10)),
             ),
             child: TextField(
-              controller: _emailController,
+              controller: controller.emailController,
               decoration: const InputDecoration(
                   hintText: 'Enter your email', border: InputBorder.none),
             ),
@@ -102,7 +61,7 @@ class _SignInPageState extends State<SignInPage> {
               borderRadius: const BorderRadius.all(Radius.circular(10)),
             ),
             child: TextField(
-              controller: _passwordController,
+              controller: controller.passwordController,
               obscureText: true,
               decoration: const InputDecoration(
                   hintText: 'Enter your Password', border: InputBorder.none),
@@ -136,8 +95,7 @@ class _SignInPageState extends State<SignInPage> {
           ),
           GestureDetector(
             onTap: () {
-              Navigator.pushNamedAndRemoveUntil(
-                  context, PageConst.signUpPage, (route) => false);
+              Get.offAllNamed("/signUp");
             },
             child: Container(
               height: 45,
@@ -161,12 +119,17 @@ class _SignInPageState extends State<SignInPage> {
   }
 
   void submitSignIn() {
-    if (_emailController.text.isNotEmpty &&
-        _passwordController.text.isNotEmpty) {
-      BlocProvider.of<UserCubit>(context).submitSignIn(
-          user: ToDoUser(
-              email: _emailController.text,
-              password: _passwordController.text));
+    if (controller.emailController.text.isNotEmpty &&
+        controller.passwordController.text.isNotEmpty) {
+      print("Logging in with:");
+      print(controller.emailController.text);
+      print(controller.passwordController.text);
+      controller.signIn();
+    } else {
+      snackBarError(
+        msg: "Please fill in both fields",
+        scaffoldState: _scaffoldGlobalKey,
+      );
     }
   }
 }

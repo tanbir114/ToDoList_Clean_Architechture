@@ -1,18 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:to_do_list_clean_architecture/features/authentication/presentation/controller/auth_controller.dart';
 import 'package:to_do_list_clean_architecture/features/todo/domain/entities/todo.dart';
-
 import '../controller/todo_controller.dart';
 
 class HomePage extends GetView<TodoController> {
-  final String uid;
-  const HomePage({Key? key, required this.uid}) : super(key: key);
 
+  const HomePage({Key? key}) : super(key: key);
   @override
   Widget build(BuildContext context) {
+    final AuthController authController = Get.find<AuthController>();
     return Scaffold(
       appBar: AppBar(
         title: const Text('Todo Clean Architecture'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.logout),
+            onPressed: () {
+              authController.signOut();
+            },
+          ),
+        ],
       ),
       body: StreamBuilder(
         stream: controller.listTodo(),

@@ -4,7 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 abstract class AuthRemoteDatabase {
   Future<bool> isSignIn();
-  Future<void> signIn(ToDoUser user);
+  Future<ToDoUser> signIn(ToDoUser user);
   Future<void> signUp(ToDoUser user);
   Future<void> signOut();
   Future<String> getCurrentUId();
@@ -21,28 +21,50 @@ class AuthRemoteDatabaseImpl implements AuthRemoteDatabase {
   Future<void> getCreateCurrentUser(ToDoUser user) async {
     final userCollectionRef = firestore.collection("users");
     final uid = await getCurrentUId();
-    userCollectionRef.doc(uid).get().then((value) {
-      final newUser = UserModel(
-        uid: uid,
-        name: user.name,
-        email: user.email,
-      ).toDocument();
-      if (!value.exists) {
-        userCollectionRef.doc(uid).set(newUser);
-      }
-      return;
-    });
+    final userDoc = await userCollectionRef.doc(uid).get();
+
+    if (!userDoc.exists) {
+      await userCollectionRef.doc(uid).set({
+        'uid': uid,
+        'email': user.email,
+        'name': user.name,
+      });
+    }
   }
 
   @override
   Future<String> getCurrentUId() async => auth.currentUser!.uid;
 
   @override
-  Future<bool> isSignIn() async => auth.currentUser?.uid != null;
+  Future<bool> isSignIn() async => auth.currentUser != null;
 
   @override
-  Future<void> signIn(ToDoUser user) async => auth.signInWithEmailAndPassword(
-      email: user.email!, password: user.password!);
+  Future<ToDoUser> signIn(ToDoUser user) async {
+    try {
+      print("aaaaaaaaaaaaaaaaaaaaaa");
+      print(user.email);
+      print(user.password);
+      UserCredential userCredential = await auth.signInWithEmailAndPassword(
+          email: user.email, password: user.password);
+      print("aaaaaaaaaaaaaaaaaaaaaa");
+      User? firebaseUser = userCredential.user;
+      print(firebaseUser);
+      print(userCredential);
+
+      if (firebaseUser != null) {
+        return ToDoUser(
+          uid: firebaseUser.uid,
+          email: firebaseUser.email!,
+          name: firebaseUser.displayName ?? 'Unknown', 
+          password: user.password,
+        );
+      } else {
+        throw Exception('Failed to sign in user');
+      }
+    } catch (e) {
+      throw Exception('Failed to sign in: ${e.toString()}');
+    }
+  }
 
   @override
   Future<void> signOut() async => auth.signOut();
@@ -50,33 +72,6 @@ class AuthRemoteDatabaseImpl implements AuthRemoteDatabase {
   @override
   Future<void> signUp(ToDoUser user) async =>
       auth.createUserWithEmailAndPassword(
-          email: user.email!, password: user.password!);
+          email: user.email, password: user.password);
 }
 
-class UserModel extends ToDoUser {
-  UserModel({
-    final String? name,
-    final String? email,
-    final String? uid,
-    final String? status,
-    final String? password,
-  }) : super(
-            uid: uid,
-            name: name,
-            email: email,
-            password: password,
-            status: status);
-
-  factory UserModel.fromSnapshot(DocumentSnapshot documentSnapshot) {
-    return UserModel(
-      status: documentSnapshot.get('status'),
-      name: documentSnapshot.get('name'),
-      uid: documentSnapshot.get('uid'),
-      email: documentSnapshot.get('email'),
-    );
-  }
-
-  Map<String, dynamic> toDocument() {
-    return {"status": status, "uid": uid, "email": email, "name": name};
-  }
-}

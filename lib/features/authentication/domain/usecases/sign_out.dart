@@ -1,11 +1,14 @@
+import 'package:dartz/dartz.dart';
 import 'package:to_do_list_clean_architecture/features/authentication/domain/repositories/auth_repo.dart';
+import '../../../../shared/errors/failure.dart';
+import '../../../../shared/utils/usecase.dart';
 
-class SignOutUseCase {
+class SignOutUseCase implements UseCase<void, NoParams> {
   final AuthRepository repository;
+  SignOutUseCase(this.repository);
 
-  SignOutUseCase({required this.repository});
-
-  Future<void> call() async {
-    return repository.signOut();
+  @override
+  Future<Either<Failure, void>> call(NoParams params) async {
+    return await repository.signOut();
   }
 }
