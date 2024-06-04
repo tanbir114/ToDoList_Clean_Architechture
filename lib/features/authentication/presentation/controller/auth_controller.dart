@@ -52,9 +52,6 @@ class AuthController extends GetxController {
   }
 
   Future<void> signIn() async {
-    print(nameController.text.trim());
-    print(passwordController.text);
-    print(emailController.text);
     final results = await signInUseCase(Params(
       ToDoUser(
         name: '',
@@ -63,9 +60,7 @@ class AuthController extends GetxController {
         uid: '',
       ),
     ));
-    print(results);
     results.fold((failure) {
-      print(failure.message);
       Get.snackbar("Error", failure.message);
     }, (todouser) async {
       // clear form
@@ -134,7 +129,6 @@ class AuthController extends GetxController {
     final results = await getCurrentUidUseCase(NoParams());
 
     results.fold((failure) {
-      print(failure.message);
       Get.snackbar("Error", failure.message);
     }, (uid) {
       Get.snackbar("Success", "Current User ID: $uid");

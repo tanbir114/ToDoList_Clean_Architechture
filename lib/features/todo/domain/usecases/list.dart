@@ -5,12 +5,12 @@ import 'package:to_do_list_clean_architecture/shared/errors/failure.dart';
 import '../../../../shared/utils/usecase.dart';
 import '../entities/todo.dart';
 
-class ListTodoUseCase implements UseCase<Stream<List<Todo>>, NoParams> {
+class ListTodoUseCase implements UseCase<Stream<List<Todo>>, Params> {
   final TodoRepository repository;
   ListTodoUseCase(this.repository);
 
   @override
-  Future<Either<Failure, Stream<List<Todo>>>> call(NoParams params) {
-    return repository.getAll();
+  Future<Either<Failure, Stream<List<Todo>>>> call(Params params) {
+    return repository.getAll(params.data);
   }
 }

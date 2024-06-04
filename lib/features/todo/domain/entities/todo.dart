@@ -5,14 +5,21 @@ class Todo {
   final String id;
   final String text;
   final String description;
+  final String uid;
 
-  Todo({required this.id, required this.text, required this.description});
+  Todo({
+    required this.id,
+    required this.text,
+    required this.description,
+    required this.uid,
+  });
 
-    Map<String, dynamic> toMap() {
+  Map<String, dynamic> toMap() {
     return <String, dynamic>{
       'id': id,
       'text': text,
       'description': description,
+      'uid': uid,
     };
   }
 
@@ -21,6 +28,7 @@ class Todo {
       id: map['id'] as String,
       text: map['text'] as String,
       description: map['description'] as String,
+      uid: map['uid'] as String,
     );
   }
 

@@ -7,6 +7,7 @@ import 'package:to_do_list_clean_architecture/features/todo/domain/usecases/add.
 import 'package:to_do_list_clean_architecture/features/todo/domain/usecases/edit.dart';
 import 'package:to_do_list_clean_architecture/shared/utils/usecase.dart';
 
+import '../../../authentication/presentation/controller/auth_controller.dart';
 import '../../domain/usecases/delete.dart';
 import '../../domain/usecases/list.dart';
 import '../../../../shared/utils/random_id.dart';
@@ -20,6 +21,8 @@ class TodoController extends GetxController {
   final DeleteTodoUseCase deleteTodoUseCase;
   final EditTodoUseCase editTodoUseCase;
 
+  final AuthController authController = Get.find<AuthController>();
+
   TodoController({
     required this.addTodoUseCase,
     required this.listTodoUseCase,
@@ -28,11 +31,15 @@ class TodoController extends GetxController {
   });
 
   Future<void> addTodo() async {
+    final uid = authController.uid.value;
+    print("aaaaaaaaaaaaaaaaaaaa");
+    print("uid");
     final results = await addTodoUseCase(Params(
       Todo(
         id: generateRandomId(10),
         text: titleController.text.trim(),
         description: descriptionController.text.trim(),
+        uid: uid,
       ),
     ));
     results.fold((failure) {
@@ -47,7 +54,7 @@ class TodoController extends GetxController {
   }
 
   Stream<List<Todo>> listTodo() async* {
-    final results = await listTodoUseCase(NoParams());
+    final results = await listTodoUseCase(Params(authController.uid.value));
     yield* results.fold((failure) {
       print(failure.message);
       Get.snackbar("Error", failure.message);
