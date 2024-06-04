@@ -5,7 +5,8 @@ import 'package:to_do_list_clean_architecture/features/todo/domain/entities/todo
 import '../controller/todo_controller.dart';
 
 class HomePage extends GetView<TodoController> {
-  const HomePage({Key? key}) : super(key: key);
+  final String uid;
+  const HomePage({Key? key, required this.uid}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
