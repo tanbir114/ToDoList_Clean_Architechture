@@ -1,9 +1,9 @@
 import 'package:dartz/dartz.dart';
-import 'package:to_do_list_clean_architecture/features/todo/domain/repositories/todo_repository.dart';
-import 'package:to_do_list_clean_architecture/shared/errors/failure.dart';
 
+import '../../../../shared/errors/failure.dart';
 import '../../../../shared/utils/usecase.dart';
 import '../entities/todo.dart';
+import '../repositories/todo_repository.dart';
 
 class DeleteTodoUseCase implements UseCase<Todo, Params<Todo>> {
   final TodoRepository repository;

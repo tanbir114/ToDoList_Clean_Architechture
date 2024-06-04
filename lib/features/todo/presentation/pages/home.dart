@@ -23,7 +23,6 @@ class HomePage extends GetView<TodoController> {
                 child: Text("No todos found"),
               );
             }
-
             return ListView.builder(
               itemCount: todos.length,
               itemBuilder: (context, index) {
