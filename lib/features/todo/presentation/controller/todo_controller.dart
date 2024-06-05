@@ -7,19 +7,24 @@ import 'package:to_do_list_clean_architecture/features/todo/domain/usecases/add.
 import 'package:to_do_list_clean_architecture/features/todo/domain/usecases/edit.dart';
 import 'package:to_do_list_clean_architecture/shared/utils/usecase.dart';
 
+import '../../../../shared/utils/random_id.dart';
 import '../../../authentication/presentation/controller/auth_controller.dart';
 import '../../domain/usecases/delete.dart';
 import '../../domain/usecases/list.dart';
-import '../../../../shared/utils/random_id.dart';
+// import '../../domain/usecases/search.dart';
+// import '../../domain/usecases/sort.dart';
 
 class TodoController extends GetxController {
   final formKey = GlobalKey<FormState>();
   final titleController = TextEditingController();
   final descriptionController = TextEditingController();
+  final searchController = TextEditingController();
   final AddTodoUseCase addTodoUseCase;
   final ListTodoUseCase listTodoUseCase;
   final DeleteTodoUseCase deleteTodoUseCase;
   final EditTodoUseCase editTodoUseCase;
+  // final SortUseCase sortUseCase;
+  // final SearchUseCase searchUseCase;
 
   final AuthController authController = Get.find<AuthController>();
 
@@ -28,33 +33,52 @@ class TodoController extends GetxController {
     required this.listTodoUseCase,
     required this.deleteTodoUseCase,
     required this.editTodoUseCase,
+    // required this.sortUseCase,
+    // required this.searchUseCase,
   });
+
+  var des = true.obs;
+
+  // Method to toggle the sort direction
+  void toggleSortDirection() {
+    des.value = !des.value;
+    updateTodoList();
+  }
+
+  void updateTodoList() {
+    listTodo(); // Make sure this method adapts to the new sort order, possibly by creating a new stream
+  }
 
   Future<void> addTodo() async {
     final uid = authController.uid.value;
-    print("aaaaaaaaaaaaaaaaaaaa");
-    print("uid");
-    final results = await addTodoUseCase(Params(
-      Todo(
-        id: generateRandomId(10),
-        text: titleController.text.trim(),
-        description: descriptionController.text.trim(),
-        uid: uid,
-      ),
-    ));
+    final newTodo = Todo(
+      id: generateRandomId(10),
+      text: titleController.text.trim(),
+      description: descriptionController.text.trim(),
+      uid: uid,
+      dateTime: DateTime.now(),
+    );
+
+    final results = await addTodoUseCase(Params(newTodo));
     results.fold((failure) {
       print(failure.message);
       Get.snackbar("Error", failure.message);
     }, (todo) {
-      // clear form
       titleController.clear();
       descriptionController.clear();
       Get.snackbar("Success", "Todo added successfully");
     });
   }
 
-  Stream<List<Todo>> listTodo() async* {
-    final results = await listTodoUseCase(Params(authController.uid.value));
+  Stream<List<Todo>> listTodo({String? query, bool ascending = true}) async* {
+    print(
+        "Todo controller called with uid:, query: $query, ascending: $ascending");
+    final results = await listTodoUseCase(
+      authController.uid.value,
+      query!,
+      ascending,
+    );
+    print(results);
     yield* results.fold((failure) {
       print(failure.message);
       Get.snackbar("Error", failure.message);
@@ -63,6 +87,17 @@ class TodoController extends GetxController {
       return todo;
     });
   }
+
+  // Stream<List<Todo>> sortTodosByDate() async* {
+  //   final results = await sortUseCase(Params(authController.uid.value));
+  //   yield* results.fold((failure) {
+  //     print(failure.message);
+  //     Get.snackbar("Error", failure.message);
+  //     return Stream.value([]);
+  //   }, (todo) {
+  //     return todo;
+  //   });
+  // }
 
   Future<void> deleteTodo(Todo todo) async {
     final results = await deleteTodoUseCase(Params(todo));
@@ -79,4 +114,18 @@ class TodoController extends GetxController {
       (r) => Get.snackbar("Success", "Todo edited successfully"),
     );
   }
+
+  // Stream<List<Todo>> searchTodos(String query) async* {
+  //   print("sssssssssssssssss ${query}");
+  //   final results = await searchUseCase(authController.uid.value, query);
+  //   print(results);
+  //   print(results.length);
+  //   yield* results.fold((failure) {
+  //     print(failure.message);
+  //     Get.snackbar("Error", failure.message);
+  //     return Stream.value([]);
+  //   }, (todo) {
+  //     return todo;
+  //   });
+  // }
 }

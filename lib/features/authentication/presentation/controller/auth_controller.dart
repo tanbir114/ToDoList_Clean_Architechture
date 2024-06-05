@@ -43,14 +43,6 @@ class AuthController extends GetxController {
     isSignIn();
   }
 
-  @override
-  void onClose() {
-    nameController.dispose();
-    emailController.dispose();
-    passwordController.dispose();
-    super.onClose();
-  }
-
   Future<void> signIn() async {
     final results = await signInUseCase(Params(
       ToDoUser(
