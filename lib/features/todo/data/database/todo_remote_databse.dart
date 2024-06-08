@@ -5,7 +5,7 @@ abstract class TodoRemoteDatabase {
   Future<Todo> addTodo(Todo todo);
   Future<Todo> editTodo(Todo todo);
   Future<Todo> deleteTodo(Todo todo);
-  Stream<List<Todo>> listTodos(String uid, String query, bool ascending);
+  Stream<List<Todo>> listTodos(String uid, String query);
 }
 
 class TodoRemoteDatabseImpl implements TodoRemoteDatabase {
@@ -35,7 +35,7 @@ class TodoRemoteDatabseImpl implements TodoRemoteDatabase {
 
   @override
   Stream<List<Todo>> listTodos(
-      String uid, String query, bool ascending) async* {
+      String uid, String query) async* {
     if (query != "kdfnvckljasnvkjasnvnv asjnvkajdnan jfaopdjf oj") {
       yield* FirebaseFirestore.instance
           .collection('todos')
@@ -43,7 +43,7 @@ class TodoRemoteDatabseImpl implements TodoRemoteDatabase {
           .where('text', isEqualTo: query)
           .snapshots()
           .map((snapshot) {
-        print("kkkkkkkkkkkkkkkk + ${snapshot}");
+        // print("kkkkkkkkkkkkkkkk + ${snapshot}");
         return snapshot.docs.map((doc) {
           return Todo.fromMap(doc.data());
         }).toList();
@@ -55,7 +55,7 @@ class TodoRemoteDatabseImpl implements TodoRemoteDatabase {
           .snapshots()
           .map((snapshot) {
         return snapshot.docs.map((doc) {
-          print("jjjjjjjjjjjjjjjjj + ${query}");
+          // print("jjjjjjjjjjjjjjjjj + ${query}");
           return Todo.fromMap(doc.data());
         }).toList();
       });

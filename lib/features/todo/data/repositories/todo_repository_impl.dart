@@ -39,15 +39,16 @@ class TodoRepositoryImpl implements TodoRepository {
     }
   }
 
-  @override
-  Future<Either<Failure, Stream<List<Todo>>>> getAll(String uid, String query, bool ascending) async {
+  Future<Either<Failure, Stream<List<Todo>>>> listTodos(String uid, String query) async {
     try {
-      final result = await remoteDatabase.listTodos(uid, query, ascending);
+      final result = await remoteDatabase.listTodos(uid, query);
       return Right(result);
     } catch (e) {
       return Left(Failure("we could not fetch the todos from the database"));
     }
   }
+
+
   
   // @override
   // Future<Either<Failure, Stream<List<Todo>>>> sortTodosByDate(String uid,

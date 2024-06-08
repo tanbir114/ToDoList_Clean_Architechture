@@ -1,30 +1,26 @@
-// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import 'package:to_do_list_clean_architecture/features/todo/domain/entities/todo.dart';
-import 'package:to_do_list_clean_architecture/features/todo/domain/usecases/add.dart';
-import 'package:to_do_list_clean_architecture/features/todo/domain/usecases/edit.dart';
-import 'package:to_do_list_clean_architecture/shared/utils/usecase.dart';
-
 import '../../../../shared/utils/random_id.dart';
+import '../../../../shared/utils/usecase.dart';
 import '../../../authentication/presentation/controller/auth_controller.dart';
+import '../../domain/entities/todo.dart';
+import '../../domain/usecases/add.dart';
 import '../../domain/usecases/delete.dart';
+import '../../domain/usecases/edit.dart';
 import '../../domain/usecases/list.dart';
-// import '../../domain/usecases/search.dart';
-// import '../../domain/usecases/sort.dart';
 
 class TodoController extends GetxController {
   final formKey = GlobalKey<FormState>();
   final titleController = TextEditingController();
   final descriptionController = TextEditingController();
   final searchController = TextEditingController();
+  final deadlineController = TextEditingController(); // Add this line
+
   final AddTodoUseCase addTodoUseCase;
   final ListTodoUseCase listTodoUseCase;
   final DeleteTodoUseCase deleteTodoUseCase;
   final EditTodoUseCase editTodoUseCase;
-  // final SortUseCase sortUseCase;
-  // final SearchUseCase searchUseCase;
 
   final AuthController authController = Get.find<AuthController>();
 
@@ -33,20 +29,19 @@ class TodoController extends GetxController {
     required this.listTodoUseCase,
     required this.deleteTodoUseCase,
     required this.editTodoUseCase,
-    // required this.sortUseCase,
-    // required this.searchUseCase,
   });
 
   var des = true.obs;
 
-  // Method to toggle the sort direction
   void toggleSortDirection() {
     des.value = !des.value;
+    print(des.value);
     updateTodoList();
   }
 
   void updateTodoList() {
-    listTodo(); // Make sure this method adapts to the new sort order, possibly by creating a new stream
+    listTodo("kdfnvckljasnvkjasnvnv asjnvkajdnan jfaopdjf oj");
+    update();
   }
 
   Future<void> addTodo() async {
@@ -57,6 +52,9 @@ class TodoController extends GetxController {
       description: descriptionController.text.trim(),
       uid: uid,
       dateTime: DateTime.now(),
+      deadline: deadlineController.text.isNotEmpty
+          ? DateTime.parse(deadlineController.text)
+          : null, // Add this line
     );
 
     final results = await addTodoUseCase(Params(newTodo));
@@ -66,38 +64,59 @@ class TodoController extends GetxController {
     }, (todo) {
       titleController.clear();
       descriptionController.clear();
+      deadlineController.clear(); // Add this line
       Get.snackbar("Success", "Todo added successfully");
     });
   }
 
-  Stream<List<Todo>> listTodo({String? query, bool ascending = true}) async* {
-    print(
-        "Todo controller called with uid:, query: $query, ascending: $ascending");
-    final results = await listTodoUseCase(
-      authController.uid.value,
-      query!,
-      ascending,
+  Future<void> editTodo(Todo todo) async {
+    final updatedTodo = Todo(
+      id: todo.id,
+      text: titleController.text.trim(),
+      description: descriptionController.text.trim(),
+      uid: todo.uid,
+      dateTime: todo.dateTime,
+      deadline: deadlineController.text.isNotEmpty
+          ? DateTime.parse(deadlineController.text)
+          : null, // Add this line
     );
-    print(results);
-    yield* results.fold((failure) {
+
+    final results = await editTodoUseCase(Params(updatedTodo));
+    results.fold(
+      (failure) => Get.snackbar("Error", failure.message),
+      (r) => Get.snackbar("Success", "Todo edited successfully"),
+    );
+  }
+
+  Stream<List<Todo>> listTodo(String query) async* {
+  print("Todo controller called with uid:, query: $query");
+  final results = await listTodoUseCase(
+    authController.uid.value,
+    query,
+  );
+  
+  yield* results.fold(
+    (failure) {
       print(failure.message);
       Get.snackbar("Error", failure.message);
       return Stream.value([]);
-    }, (todo) {
-      return todo;
-    });
-  }
+    }, 
+    (todoStream) async* {
+      await for (var todos in todoStream) {
+        todos.sort((a, b) {
+          if (a.deadline == null && b.deadline == null) return 0;
+          if (a.deadline == null) return des.value ? 1 : -1;
+          if (b.deadline == null) return des.value ? -1 : 1;
+          return des.value
+              ? b.deadline!.compareTo(a.deadline!)
+              : a.deadline!.compareTo(b.deadline!);
+        });
+        yield todos;
+      }
+    }
+  );
+}
 
-  // Stream<List<Todo>> sortTodosByDate() async* {
-  //   final results = await sortUseCase(Params(authController.uid.value));
-  //   yield* results.fold((failure) {
-  //     print(failure.message);
-  //     Get.snackbar("Error", failure.message);
-  //     return Stream.value([]);
-  //   }, (todo) {
-  //     return todo;
-  //   });
-  // }
 
   Future<void> deleteTodo(Todo todo) async {
     final results = await deleteTodoUseCase(Params(todo));
@@ -106,26 +125,4 @@ class TodoController extends GetxController {
       (r) => Get.snackbar("Success", "Todo deleted successfully"),
     );
   }
-
-  Future<void> editTodo(Todo todo) async {
-    final results = await editTodoUseCase(Params(todo));
-    results.fold(
-      (failure) => Get.snackbar("Error", failure.message),
-      (r) => Get.snackbar("Success", "Todo edited successfully"),
-    );
-  }
-
-  // Stream<List<Todo>> searchTodos(String query) async* {
-  //   print("sssssssssssssssss ${query}");
-  //   final results = await searchUseCase(authController.uid.value, query);
-  //   print(results);
-  //   print(results.length);
-  //   yield* results.fold((failure) {
-  //     print(failure.message);
-  //     Get.snackbar("Error", failure.message);
-  //     return Stream.value([]);
-  //   }, (todo) {
-  //     return todo;
-  //   });
-  // }
 }

@@ -10,7 +10,8 @@ abstract class TodoRepository {
   //Delete
   Future<Either<Failure, Todo>> delete(Todo todo);
   //Get All toda
-  Future<Either<Failure, Stream<List<Todo>>>> getAll(String uid, String query, bool ascending);
+  Future<Either<Failure, Stream<List<Todo>>>> listTodos(String uid, String query);
+
   //sorting
   // Future<Either<Failure, Stream<List<Todo>>>> sortTodosByDate(String uid,
   //     {String sortBy = 'dateTime', bool ascending = true});
