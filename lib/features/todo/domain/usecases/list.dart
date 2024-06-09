@@ -11,6 +11,6 @@ class ListTodoUseCase {
       String uid, String query, bool ascending) {
     print(
         "ListTodoUseCase called with uid: $uid, query: $query, ascending: $ascending");
-    return repository.getAll(uid, query!, ascending);
+    return repository.getAll(uid, query, ascending);
   }
 }

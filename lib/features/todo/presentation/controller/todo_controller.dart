@@ -41,12 +41,15 @@ class TodoController extends GetxController {
 
   // Method to toggle the sort direction
   void toggleSortDirection() {
+    print("nnnnnnnnnnnnnnnnnnnnnnnnnnnnn");
     des.value = !des.value;
     updateTodoList();
   }
 
   void updateTodoList() {
-    listTodo(); // Make sure this method adapts to the new sort order, possibly by creating a new stream
+    print("mmmmmmmmmmmmmmmmmmmmmmmmmmmm");
+    listTodo("kdfnvckljasnvkjasnvnv asjnvkajdnan jfaopdjf oj",
+        des.value); // Make sure this method adapts to the new sort order, possibly by creating a new stream
   }
 
   Future<void> addTodo() async {
@@ -70,12 +73,13 @@ class TodoController extends GetxController {
     });
   }
 
-  Stream<List<Todo>> listTodo({String? query, bool ascending = true}) async* {
+  Stream<List<Todo>> listTodo(String query, bool ascending) async* {
+    print("gggggggggggggggggggggggg");
     print(
         "Todo controller called with uid:, query: $query, ascending: $ascending");
     final results = await listTodoUseCase(
       authController.uid.value,
-      query!,
+      query,
       ascending,
     );
     print(results);

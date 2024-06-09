@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:dartz/dartz.dart';
 import 'package:to_do_list_clean_architecture/features/todo/domain/entities/todo.dart';
 
 abstract class TodoRemoteDatabase {
@@ -41,6 +42,7 @@ class TodoRemoteDatabseImpl implements TodoRemoteDatabase {
           .collection('todos')
           .where('uid', isEqualTo: uid)
           .where('text', isEqualTo: query)
+          .orderBy('dateTime', descending: !ascending)
           .snapshots()
           .map((snapshot) {
         print("kkkkkkkkkkkkkkkk + ${snapshot}");
@@ -52,6 +54,7 @@ class TodoRemoteDatabseImpl implements TodoRemoteDatabase {
       yield* FirebaseFirestore.instance
           .collection('todos')
           .where('uid', isEqualTo: uid)
+          .orderBy('dateTime', descending: !ascending)
           .snapshots()
           .map((snapshot) {
         return snapshot.docs.map((doc) {

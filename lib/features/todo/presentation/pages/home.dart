@@ -31,11 +31,7 @@ class HomePage extends GetView<TodoController> {
             padding: const EdgeInsets.all(8.0),
             child: TextField(
               controller: controller.searchController,
-              onChanged: (value) {
-                // print("qqqqqqqqqqqqqqqqqqqqqq ${value}");
-                // controller.searchTodos(value);
-                // print("qqqqqqqqqqqqqqqqqqqqqq ${value}");
-              },
+              onChanged: (value) {},
               decoration: const InputDecoration(
                 labelText: 'Search Todos',
                 prefixIcon: Icon(Icons.search),
@@ -46,17 +42,22 @@ class HomePage extends GetView<TodoController> {
           IconButton(
             icon: const Icon(Icons.sort),
             onPressed: () {
-              controller.toggleSortDirection();
-              controller.updateTodoList();
+              controller.des.value = !controller.des.value;
+              controller.listTodo(
+                controller.searchController.text.trim().isEmpty
+                    ? "kdfnvckljasnvkjasnvnv asjnvkajdnan jfaopdjf oj"
+                    : controller.searchController.text.trim(),
+                controller.des.value,
+              );
             },
           ),
           Expanded(
             child: StreamBuilder(
               stream: controller.listTodo(
-                query: controller.searchController.text.trim().isEmpty
+                controller.searchController.text.trim().isEmpty
                     ? "kdfnvckljasnvkjasnvnv asjnvkajdnan jfaopdjf oj"
                     : controller.searchController.text.trim(),
-                ascending: controller.des.value,
+                controller.des.value,
               ),
               builder: (context, snapshot) {
                 if (snapshot.hasData) {
@@ -69,7 +70,12 @@ class HomePage extends GetView<TodoController> {
                   return ListView.builder(
                     itemCount: todos.length,
                     itemBuilder: (context, index) {
+                      bool isToday =
+                          isSameDay(todos[index].dateTime, DateTime.now());
+                      Color tileColor = isToday ? Colors.green : Colors.white;
+
                       return ListTile(
+                        tileColor: tileColor,
                         title: Text(todos[index].text),
                         subtitle: Text(
                           "${todos[index].description}\nCreated on: ${DateFormat('yyyy-MM-dd – kk:mm').format(todos[index].dateTime)}",
@@ -265,4 +271,10 @@ class HomePage extends GetView<TodoController> {
       ),
     );
   }
+}
+
+bool isSameDay(DateTime date1, DateTime date2) {
+  return date1.year == date2.year &&
+      date1.month == date2.month &&
+      date1.day == date2.day;
 }
